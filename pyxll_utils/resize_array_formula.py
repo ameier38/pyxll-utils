@@ -13,9 +13,7 @@ Excel formula manually.
 The function is registered as a menu item as well as a macro and can
 be run from the menu or via the keyboard shortcut Ctrl+Shift+R.
 """
-from pyxll import xl_menu, xl_macro, get_active_object
-from pywintypes import com_error
-from win32com.client import Dispatch
+from pyxll import xl_menu, xl_macro, xl_app
 import win32api
 import win32con
 import logging
@@ -25,15 +23,14 @@ from shortcuts import xl_shortcut
 
 _log = logging.getLogger(__name__)
 
-@xl_shortcut("Ctrl+R")
-@xl_menu("Recalculate Selection (Ctrl+R)")
+
+@xl_menu("Recalculate Selection")
 @xl_macro("")
 def recalc_selection():
     """
     Recalculates selection
     """
-    xl_window = get_active_object()
-    xl = Dispatch(xl_window).Application
+    xl = xl_app()
 
     selection = xl.Selection
     selection.Dirty()
@@ -47,8 +44,7 @@ def resize_array_formula():
     """
     Recalculates and resizes a range to show all the results of a formula.
     """
-    xl_window = get_active_object()
-    xl = Dispatch(xl_window).Application
+    xl = xl_app()
 
     selection = xl.Selection
     formula = selection.FormulaArray
@@ -110,7 +106,7 @@ def _expand_range(xl, selection):
     formula = selection.FormulaArray
     if not (formula and (formula.startswith("=") or formula.startswith("+"))):
         # nothing to do
-        return  selection
+        return selection
     
     # Range.Offset if weird as a value of 1 results in no offset
     idx_offset = 1
@@ -124,7 +120,7 @@ def _expand_range(xl, selection):
             # move down until we find the formula
             while top_left.FormulaArray != formula:
                 top_left = top_left.Offset(idx_offset+1)
-    except com_error:
+    except Exception:
         pass
 
     try:
@@ -135,7 +131,7 @@ def _expand_range(xl, selection):
             # move right until we find the formula
             while top_left.FormulaArray != formula:
                 top_left = top_left.Offset(idx_offset+0, idx_offset+1)
-    except com_error:
+    except Exception:
         pass
 
     bottom_right = selection
@@ -147,7 +143,7 @@ def _expand_range(xl, selection):
             # move up until we find the formula
             while bottom_right.FormulaArray != formula:
                 bottom_right = bottom_right.Offset(idx_offset-1)
-    except com_error:
+    except Exception:
         pass
 
     try:
@@ -158,7 +154,7 @@ def _expand_range(xl, selection):
             # move left until we find the formula
             while bottom_right.FormulaArray != formula:
                 bottom_right = bottom_right.Offset(idx_offset+0, idx_offset-1)
-    except com_error:
+    except Exception:
         pass
 
     return xl.Range(top_left, bottom_right)
