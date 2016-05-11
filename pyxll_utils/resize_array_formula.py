@@ -60,10 +60,18 @@ def resize_array_formula():
     # (this is an optimization to avoid converting the range into a python list)
     # result = xl.Evaluate(formula)
     result = xl._oleobj_.InvokeTypes(1, 0, 1, (12, 0), ((12, 1),), formula)
-    
-    width, height = 0, len(result)
-    if height > 0 and isinstance(result[0], (list, tuple)):
+
+    # width, height = 0, len(result)
+    # if height > 0 and isinstance(result[0], (list, tuple)):
+    #     width = len(result[0])
+    # width, height = max(width, 1), max(height, 1)
+
+    if isinstance(result[0], tuple):
+        height = len(result)
         width = len(result[0])
+    else:
+        height = 1
+        width = len(result)
     width, height = max(width, 1), max(height, 1)
 
     new_range = xl.Range(current_range.Offset(1, 1),

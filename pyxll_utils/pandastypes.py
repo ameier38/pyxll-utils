@@ -121,9 +121,16 @@ def _series_to_var(s):
 
     # add tzinfo to any dates
     s = s.apply(_fix_tzinfo)
+    idx_names = s.index.name
     s.index = [_fix_tzinfo(x) for x in s.index]
+    s.index.name = idx_names
 
-    return list(map(list, s.iteritems()))
+    # only return index if index name is defined
+    if s.index.name is not None:
+        sr = list(map(list, s.iteritems()))
+    else:
+        sr = [[x] for i, x in s.iteritems()]
+    return sr
 
 
 @xl_return_type("series_t", "var")
@@ -137,9 +144,17 @@ def _series_to_var_transform(s):
 
     # add tzinfo to any dates
     s = s.apply(_fix_tzinfo)
+    idx_names = s.index.name
     s.index = [_fix_tzinfo(x) for x in s.index]
+    s.index.name = idx_names
 
-    return list(zip(*s.iteritems()))
+    # only return index if index name is defined
+    if s.index.name is not None:
+        sr = list(zip(*s.iteritems()))
+    else:
+        sr = [[x for i, x in s.iteritems()]]
+
+    return sr
 
 
 @xl_arg_type("dataframe", "var")
