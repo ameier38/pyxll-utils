@@ -58,6 +58,7 @@ import numpy as np
 
 UTC = pytz.timezone('UTC')
 
+
 @xl_return_type("dataframe", "var")
 def _dataframe_to_var(df):
     """return a list of lists that excel can understand"""
@@ -118,7 +119,7 @@ def _series_to_var(s):
 
     # convert values to floats (hack for right now bc it is converting ints to strings for some reason)
     # TODO: figure out why it is converting ints to strings
-    s = s.apply(lambda x: x.astype(float, False))
+    s = s.astype(np.float, False)
 
     # convert any errors to exceptions so they appear correctly in Excel
     s = s.apply(lambda x: RuntimeError() if isinstance(x, float) and np.isnan(x) else x)
@@ -145,7 +146,7 @@ def _series_to_var_transform(s):
 
     # convert values to floats (hack for right now bc it is converting ints to strings for some reason)
     # TODO: figure out why it is converting ints to strings
-    s = s.apply(lambda x: x.astype(float, False))
+    s = s.astype(np.float, False)
 
     # convert any errors to exceptions so they appear correctly in Excel
     s = s.apply(lambda x: RuntimeError() if isinstance(x, float) and np.isnan(x) else x)
