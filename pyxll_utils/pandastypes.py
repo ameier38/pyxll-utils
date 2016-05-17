@@ -64,6 +64,7 @@ def _dataframe_to_var(df):
     """return a list of lists that excel can understand"""
     if not isinstance(df, pa.DataFrame):
         return df
+    df = df.astype(np.float, False)
     df = df.applymap(lambda x: RuntimeError() if isinstance(x, float) and np.isnan(x) else x)
  
     index_header = [str(df.index.name)] if df.index.name is not None else []
@@ -88,9 +89,13 @@ def _dataframe_to_var(df):
             num_levels = len(df.columns.levels)
             result[num_levels-1][:len(index_header)] = index_header
     else:
-        if index_header and df.columns.name:
-            index_header[-1] += (" \ " if index_header[-1] else "") + str(df.columns.name)
-        result = [index_header + list(df.columns)]    
+        if df.columns.name is not None:
+            if index_header:
+                if df.columns.name != '':
+                    index_header[-1] += (" \ " if index_header[-1] else "") + str(df.columns.name)
+            result = [index_header + list(df.columns)]
+        else:
+            result = []
 
     if isinstance(df.index, pa.MultiIndex):
         prev_ix = None
