@@ -65,7 +65,8 @@ def _dataframe_to_var(df):
     if not isinstance(df, pa.DataFrame):
         return df
     df = df.astype(np.float, False)
-    df = df.applymap(lambda x: RuntimeError() if isinstance(x, float) and np.isnan(x) else x)
+    if not df.empty:
+        df = df.applymap(lambda x: RuntimeError() if isinstance(x, float) and np.isnan(x) else x)
  
     index_header = [str(df.index.name)] if df.index.name is not None else []
     if isinstance(df.index, pa.MultiIndex):
